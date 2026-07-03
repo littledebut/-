@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公式计算器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 36px 40px;
+      width: 520px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .card h2 {
+      text-align: center;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .formula {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 28px;
+      font-style: italic;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #764ba2;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 6px;
+    }
+
+    /* ---------- 定值区域 ---------- */
+    .constants {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .constants label,
+    .variables label {
+      font-size: 13px;
+      color: #555;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .constants input,
+    .variables input {
+      width: 100%;
+      padding: 8px 6px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      text-align: center;
+      transition: border-color .2s;
+    }
+
+    .constants input:focus,
+    .variables input:focus {
+      outline: none;
+      border-color: #764ba2;
+    }
+
+    /* ---------- 变量区域 ---------- */
+    .variables {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    /* ---------- 按钮 & 结果 ---------- */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+
+    .btn:hover { opacity: .9; }
+
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: #333;
+      min-height: 32px;
+    }
+
+    .result span { color: #764ba2; }
+
+    /* ---------- 计算过程展示 ---------- */
+    .detail {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 13px;
+      color: #999;
+      word-break: break-all;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>公式计算器</h2>
+  <p class="formula">y = a·x₁ + b·x₂ + c·x₃ + d·x₄ + e·x₅ + f·x₆ + g·x₇ + h·x₈</p>
+
+  <!-- 定值（常量） -->
+  <div class="section-title">定值（系数）</div>
+  <div class="constants">
+    <div><label>a</label><input type="number" id="a" value="1" step="any"></div>
+    <div><label>b</label><input type="number" id="b" value="1" step="any"></div>
+    <div><label>c</label><input type="number" id="c" value="1" step="any"></div>
+    <div><label>d</label><input type="number" id="d" value="1" step="any"></div>
+    <div><label>e</label><input type="number" id="e" value="1" step="any"></div>
+    <div><label>f</label><input type="number" id="f" value="1" step="any"></div>
+    <div><label>g</label><input type="number" id="g" value="1" step="any"></div>
+    <div><label>h</label><input type="number" id="h" value="1" step="any"></div>
+  </div>
+
+  <!-- 变量（用户输入） -->
+  <div class="section-title">变量（用户输入）</div>
+  <div class="variables">
+    <div><label>x₁</label><input type="number" id="x1" placeholder="x₁" step="any"></div>
+    <div><label>x₂</label><input type="number" id="x2" placeholder="x₂" step="any"></div>
+    <div><label>x₃</label><input type="number" id="x3" placeholder="x₃" step="any"></div>
+    <div><label>x₄</label><input type="number" id="x4" placeholder="x₄" step="any"></div>
+    <div><label>x₅</label><input type="number" id="x5" placeholder="x₅" step="any"></div>
+    <div><label>x₆</label><input type="number" id="x6" placeholder="x₆" step="any"></div>
+    <div><label>x₇</label><input type="number" id="x7" placeholder="x₇" step="any"></div>
+    <div><label>x₈</label><input type="number" id="x8" placeholder="x₈" step="any"></div>
+  </div>
+
+  <button class="btn" onclick="calculate()">计 算</button>
+
+  <div class="result" id="result"></div>
+  <div class="detail" id="detail"></div>
+</div>
+
+<script>
+  function calculate() {
+    // 读取系数
+    const a = parseFloat(document.getElementById('a').value) || 0;
+    const b = parseFloat(document.getElementById('b').value) || 0;
+    const c = parseFloat(document.getElementById('c').value) || 0;
+    const d = parseFloat(document.getElementById('d').value) || 0;
+    const e = parseFloat(document.getElementById('e').value) || 0;
+    const f = parseFloat(document.getElementById('f').value) || 0;
+    const g = parseFloat(document.getElementById('g').value) || 0;
+    const h = parseFloat(document.getElementById('h').value) || 0;
+
+    // 读取变量
+    const x1 = parseFloat(document.getElementById('x1').value) || 0;
+    const x2 = parseFloat(document.getElementById('x2').value) || 0;
+    const x3 = parseFloat(document.getElementById('x3').value) || 0;
+    const x4 = parseFloat(document.getElementById('x4').value) || 0;
+    const x5 = parseFloat(document.getElementById('x5').value) || 0;
+    const x6 = parseFloat(document.getElementById('x6').value) || 0;
+    const x7 = parseFloat(document.getElementById('x7').value) || 0;
+    const x8 = parseFloat(document.getElementById('x8').value) || 0;
+
+    // 计算结果
+    const y = a*x1 + b*x2 + c*x3 + d*x4 + e*x5 + f*x6 + g*x7 + h*x8;
+
+    // 展示结果
+    document.getElementById('result').innerHTML = 'y = <span>' + y + '</span>';
+
+    // 展示计算过程
+    const terms = [
+      a + '×' + x1,
+      b + '×' + x2,
+      c + '×' + x3,
+      d + '×' + x4,
+      e + '×' + x5,
+      f + '×' + x6,
+      g + '×' + x7,
+      h + '×' + x8
+    ];
+    document.getElementById('detail').innerHTML =
+      terms.join(' + ') + ' = ' + y;
+  }
+</script>
+
+</body>
+</html>
